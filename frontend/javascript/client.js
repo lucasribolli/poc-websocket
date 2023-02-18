@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 // const serverAddress = "ws://127.0.0.1:5000";
 // const serverAddress = 'wss://simple-websocket-server-echo.glitch.me/';
-const serverAddress = 'wss://fierce-absorbed-cuckoo.glitch.me';
+const serverAddress = 'wss://fierce-absorbed-cuckoo.glitch.me/counter';
 
 const ws = new WebSocket(serverAddress, {
     headers: {
@@ -10,10 +10,6 @@ const ws = new WebSocket(serverAddress, {
     }
 });
 
-ws.on('open', function() {
-    ws.send("[" + new Date() + "] " + "Oi, sou um Client e quero receber dados em real-time.");
-});
-
 ws.on('message', function(msg) {
-    console.log("Received msg from the server: " + msg);
+    console.log("Received counter from the server: " + msg);
 });

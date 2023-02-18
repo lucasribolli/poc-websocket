@@ -1,27 +1,40 @@
-const WebSocket = require('ws');
+var express = require('express');
+var app = express();
+var expressWs = require('express-ws')(app);
 
-const PORT = 5000;
-
-const wsServer = new WebSocket.Server({
-    port: PORT
+app.use(function (req, res, next) {
+  console.log('middleware');
+  req.testing = 'testing';
+  return next();
 });
 
-wsServer.on('connection', function (socket) {
-    // Some feedback on the console
-    console.log("A client just connected");
+app.get('/test', function(req, res, next) {
+  console.log('test route');
+  res.send({
+    'status': 'success'
+  });
+});
 
-    // Attach some behavior to the incoming socket
-    socket.on('message', function (msg) {
-        console.log("Received message from client: "  + msg);
-        // socket.send("Take this back: " + msg);
-
-        // Broadcast that message to all connected clients
-        wsServer.clients.forEach(function (client) {
-            client.send(msg);
-        });
-
+app.ws('/counter', function(ws, req) {
+    // TODO should do something here?
+    ws.on('message', function(msg) {
+        console.log(msg);
     });
-
+    console.log('socket');
 });
 
-console.log( (new Date()) + " Server is listening on port " + PORT);
+var counterWs = expressWs.getWss('/counter');
+app.post('/counter', function(req, res, next) {
+    var newCounter = req.query.counter;
+    console.log('post /counter ' + newCounter);
+
+    // TODO update count on DB
+    counterWs.clients.forEach(function (client) {
+        client.send(newCounter);
+    });
+    res.send({
+        'status': 'success'
+    });
+});
+
+app.listen(5000);
