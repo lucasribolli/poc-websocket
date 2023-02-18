@@ -32,11 +32,13 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+String URL = 'fierce-absorbed-cuckoo.glitch.me';
+
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _controller = TextEditingController();
-  final _channel = WebSocketChannel.connect(
+  final WebSocketChannel _channel = WebSocketChannel.connect(
     // Uri.parse('wss://echo.websocket.events'),
-    Uri.parse('wss://fierce-absorbed-cuckoo.glitch.me'),
+    Uri.parse('wss://$URL/counter'),
   );
 
   @override
@@ -54,14 +56,20 @@ class _MyHomePageState extends State<MyHomePage> {
               child: TextFormField(
                 controller: _controller,
                 decoration: const InputDecoration(labelText: 'Send a message'),
+                keyboardType: TextInputType.number,
               ),
             ),
             const SizedBox(height: 24),
             StreamBuilder(
               stream: _channel.stream,
               builder: (context, snapshot) {
-                return Text(
-                    snapshot.hasData ? '${utf8.decode(snapshot.data)}' : '');
+                print('data => ${snapshot.data ?? ''}');
+                String? content;
+                if (snapshot.hasData) {
+                  content = snapshot.data;
+                  print('converted => $content');
+                }
+                return Text(content ?? '');
               },
             )
           ],

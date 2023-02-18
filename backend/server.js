@@ -15,26 +15,33 @@ app.get('/test', function(req, res, next) {
   });
 });
 
-app.ws('/counter', function(ws, req) {
-    // TODO should do something here?
-    ws.on('message', function(msg) {
-        console.log(msg);
-    });
-    console.log('socket');
-});
-
 var counterWs = expressWs.getWss('/counter');
-app.post('/counter', function(req, res, next) {
-    var newCounter = req.query.counter;
-    console.log('post /counter ' + newCounter);
-
-    // TODO update count on DB
+app.ws('/counter', function(ws, req) {
+    // initial default counter for everyone
     counterWs.clients.forEach(function (client) {
-        client.send(newCounter);
+        client.send(2023);
     });
-    res.send({
-        'status': 'success'
+
+    ws.on('message', function(newCounter) {
+        // signal all others clients about new counter value
+        counterWs.clients.forEach(function (client) {
+            client.send(newCounter);
+        });
     });
 });
+
+// Maybe it's better to use the WebSocket plugin instead of the post method
+// app.post('/counter', function(req, res, next) {
+//     var newCounter = req.query.counter;
+//     console.log('post /counter ' + newCounter);
+
+//     // TODO update count on DB
+//     counterWs.clients.forEach(function (client) {
+//         client.send(newCounter);
+//     });
+//     res.send({
+//         'status': 'success'
+//     });
+// });
 
 app.listen(5000);

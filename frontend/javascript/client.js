@@ -10,6 +10,10 @@ const ws = new WebSocket(serverAddress, {
     }
 });
 
+ws.on('open', function() {
+    ws.send("2022");
+});
+
 ws.on('message', function(msg) {
     console.log("Received counter from the server: " + msg);
 });
